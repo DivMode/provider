@@ -1,0 +1,3 @@
+name = "atlas"
+terraform = "registry.terraform.io/ariga/atlas"
+version = "0.10.1"
