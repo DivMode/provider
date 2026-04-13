@@ -20,7 +20,7 @@ for (const file of new Bun.Glob("*").scanSync("metadata")) {
     continue;
   }
   const version = [provider.version, provider.suffix].filter(Boolean).join("-");
-  const name = `@divmode/sst-${provider.name}-provider`;
+  const name = `@divmode/pulumi-${provider.name}`;
   const resp = await fetch(`https://registry.npmjs.org/${name}/${version}`);
   if (resp.status !== 404) {
     console.log("skipping", name, "version", version, "already exists");

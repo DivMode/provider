@@ -48,7 +48,7 @@ jobs:
           # metadata/ not listed here is skipped — lets us sync upstream
           # metadata/ from anomalyco/provider without picking up their
           # entire catalog.
-          MANAGED_PROVIDERS: "mimir,talos"
+          MANAGED_PROVIDERS: "talos"
         run: |
           if [ "$GITHUB_REF" = "refs/heads/master" ]; then
             bun run generate.ts
