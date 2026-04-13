@@ -29,12 +29,29 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
-      - run: |
-          if [ "${{ github.ref }}" = "refs/heads/master" ]; then
+          # NO registry-url — setting it auto-populates NODE_AUTH_TOKEN from
+          # the env var below, which blocks OIDC trusted publishing. We need
+          # npm to fall back to the OIDC token from id-token: write instead.
+      - name: Install latest npm for OIDC support
+        run: npm install -g npm@latest
+      - name: Run generate.ts (dry on PRs, real on master)
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          # Cleared so npm uses OIDC trusted publishing instead of a token.
+          # Trust is configured per-package via `npm trust` (or npmjs.com UI)
+          # — see README for the one-time setup per new provider.
+          NODE_AUTH_TOKEN: ""
+          # Allowlist of providers this fork actively publishes. Add a name
+          # here when adding a new metadata/<name>.toml (and after running
+          # `npm trust github @divmode/sst-<name>-provider --file binary.yml
+          # --repo DivMode/provider --yes` to register OIDC). Anything in
+          # metadata/ not listed here is skipped — lets us sync upstream
+          # metadata/ from anomalyco/provider without picking up their
+          # entire catalog.
+          MANAGED_PROVIDERS: "mimir"
+        run: |
+          if [ "$GITHUB_REF" = "refs/heads/master" ]; then
             bun run generate.ts
           else
             bun run generate.ts --dry
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
